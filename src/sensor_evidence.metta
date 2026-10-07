@@ -8,7 +8,11 @@
 ;; Effective confidence:
 ;; observation confidence × sensor reliability confidence
 ;; ------------------------------------------------------------
+!(import! &self "knowledge_base")
 
+;; ============================================================
+;; SENSOR EVIDENCE
+;; ============================================================
 (= (sensor-adjusted-evidence
       (STV $sObservation $cObservation)
       (STV $sSensor $cSensor))

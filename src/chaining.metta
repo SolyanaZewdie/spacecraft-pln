@@ -32,7 +32,12 @@
 ;;         -> PowerFluctuation
 ;;         -> CommunicationLoss
 ;; ------------------------------------------------------------
+!(import! &self "knowledge_base")
 
+;; ============================================================
+;; PLN CHAINING
+;; Spacecraft Anomaly Diagnosis
+;; ============================================================
 (= (find-consequences $A)
    (match &self
       (Implication $A $B $stv)

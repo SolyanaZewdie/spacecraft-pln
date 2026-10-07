@@ -1,7 +1,11 @@
 ;; ============================================================
 ;; SPACECRAFT DIAGNOSIS
 ;; ============================================================
+!(import! &self "knowledge_base")
 
+;; ============================================================
+;; SPACECRAFT DIAGNOSIS
+;; ============================================================
 (= (possible-causes $observation)
    (match &self
       (Implication $cause $observation $stv)

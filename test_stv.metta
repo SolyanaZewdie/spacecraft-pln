@@ -1,1 +1,0 @@
-﻿Set-Content .\test_stv.metta '!(+ 2 3)'

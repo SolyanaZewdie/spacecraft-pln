@@ -289,7 +289,6 @@ spacecraft-pln/
 │   ├── deduction.metta
 │   ├── induction.metta
 │   ├── abduction.metta
-│   ├── revision.metta
 │   ├── chaining.metta
 │   ├── sensor_evidence.metta
 │   ├── diagnosis.metta

@@ -1,4 +1,4 @@
-!(import! &self "../src/deduction.metta")
+!(import! &self "deduction")
 
 !(simple-deduction
    (STV 0.95 0.90)

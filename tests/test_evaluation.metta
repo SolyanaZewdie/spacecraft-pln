@@ -10,7 +10,7 @@
 ;; of the PLN engine before using the cases in the final report.
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 
 ;; ============================================================

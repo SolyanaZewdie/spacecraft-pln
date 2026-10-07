@@ -614,10 +614,6 @@ Implements the PLN induction equations.
 
 Implements the PLN abduction equations.
 
-### `revision.metta`
-
-Provides the revision component where applicable and supports belief updating.
-
 ### `chaining.metta`
 
 Implements forward reasoning, backward reasoning, and backward paths.

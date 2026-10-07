@@ -1,4 +1,4 @@
-!(import! &self "../src/stv.metta")
+!(import! &self "stv")
 
 !(confidence-to-weight 0.5)
 

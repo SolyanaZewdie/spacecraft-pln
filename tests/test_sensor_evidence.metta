@@ -1,5 +1,5 @@
-!(import! &self "../src/knowledge_base.metta")
-!(import! &self "../src/sensor_evidence.metta")
+!(import! &self "knowledge_base")
+!(import! &self "sensor_evidence")
 
 !(get-sensor-reliability BatteryVoltageSensor)
 

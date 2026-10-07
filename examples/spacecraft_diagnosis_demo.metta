@@ -23,7 +23,7 @@
 ;;   6. Show how confidence decreases through inference.
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 
 ;; ============================================================

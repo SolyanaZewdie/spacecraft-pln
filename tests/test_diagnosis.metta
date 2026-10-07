@@ -1,5 +1,5 @@
-!(import! &self "../src/knowledge_base.metta")
-!(import! &self "../src/diagnosis.metta")
+!(import! &self "knowledge_base")
+!(import! &self "diagnosis")
 
 !(diagnostic-score
    (STV 0.85 0.78)

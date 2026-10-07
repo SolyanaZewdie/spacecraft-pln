@@ -34,7 +34,7 @@
 ;; SPACECRAFT DIAGNOSTIC CASES
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 ;; ============================================================
 ;; CASE 1 — Strong evidence

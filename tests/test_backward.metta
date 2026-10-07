@@ -6,7 +6,7 @@
 ;; from an observed consequence to possible causes.
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 
 ;; ============================================================

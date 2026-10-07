@@ -1,4 +1,4 @@
-!(import! &self "../src/knowledge_base.metta")
+!(import! &self "knowledge_base")
 
 !((match &self
     (Implication $cause CommunicationLoss $stv)

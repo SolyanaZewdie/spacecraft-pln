@@ -1,6 +1,6 @@
-!(import! &self "../src/stv.metta")
-!(import! &self "../src/deduction.metta")
-!(import! &self "../src/knowledge_base.metta")
-!(import! &self "../src/chaining.metta")
+!(import! &self "stv")
+!(import! &self "deduction")
+!(import! &self "knowledge_base")
+!(import! &self "chaining")
 
 !(find-causes CommunicationLoss)

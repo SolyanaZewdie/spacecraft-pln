@@ -31,14 +31,14 @@
 ;; IMPORT PLN COMPONENTS
 ;; ============================================================
 
-!(import! &self "stv.metta")
-!(import! &self "knowledge_base.metta")
-!(import! &self "deduction.metta")
-!(import! &self "induction.metta")
-!(import! &self "abduction.metta")
-!(import! &self "chaining.metta")
-!(import! &self "sensor_evidence.metta")
-!(import! &self "diagnosis.metta")
+!(import! &self "stv")
+!(import! &self "knowledge_base")
+!(import! &self "deduction")
+!(import! &self "induction")
+!(import! &self "abduction")
+!(import! &self "chaining")
+!(import! &self "sensor_evidence")
+!(import! &self "diagnosis")
 
 
 ;; ============================================================

@@ -1,13 +1,27 @@
 ;; ============================================================
 ;; PLN DEDUCTION
 ;; ============================================================
-
-;; ------------------------------------------------------------
-;; Deduction strength
 ;;
 ;; A -> B and B -> C
 ;; therefore A -> C
-;; ------------------------------------------------------------
+;;
+;; Boundary handling:
+;;
+;; The PLN deduction-strength equation contains:
+;;
+;;     1 - sB
+;;
+;; in its denominator.
+;;
+;; Therefore sB = 1 makes the equation undefined.
+;; We explicitly return UndefinedInference instead of allowing
+;; NaN to propagate through the engine.
+;; ============================================================
+
+
+;; ============================================================
+;; DEDUCTION STRENGTH
+;; ============================================================
 
 (= (deduction-strength
       $sAB
@@ -15,18 +29,21 @@
       $sBC
       $sC)
 
-   (+ (* $sAB $sBC)
-      (* (- 1.0 $sAB)
-         (/ (- $sC
-               (* $sB $sBC))
-            (- 1.0 $sB)))))
+   (if
+      (== $sB 1.0)
 
-;; ------------------------------------------------------------
-;; Deduction confidence
-;;
-;; Confidence decreases as evidence passes through
-;; multiple inference steps.
-;; ------------------------------------------------------------
+      (UndefinedInference DeductionDenominatorZero)
+
+      (+ (* $sAB $sBC)
+         (* (- 1.0 $sAB)
+            (/ (- $sC
+                  (* $sB $sBC))
+               (- 1.0 $sB))))))
+
+
+;; ============================================================
+;; DEDUCTION CONFIDENCE
+;; ============================================================
 
 (= (deduction-confidence
       $sAB
@@ -36,9 +53,10 @@
 
    (* (* (* $sAB $sBC) $cAB) $cBC))
 
-;; ------------------------------------------------------------
-;; Full PLN deduction
-;; ------------------------------------------------------------
+
+;; ============================================================
+;; FULL PLN DEDUCTION
+;; ============================================================
 
 (= (deduction
       (STV $sAB $cAB)
@@ -46,35 +64,42 @@
       (STV $sBC $cBC)
       $sC)
 
-   (let*
-      (($sAC
-         (deduction-strength
-            $sAB
-            $sB
-            $sBC
-            $sC))
+   (if
+      (== $sB 1.0)
 
-       ($cAC
-         (deduction-confidence
-            $sAB
-            $cAB
-            $sBC
-            $cBC)))
+      (UndefinedInference DeductionDenominatorZero)
 
-      (STV
-         $sAC
-         $cAC)))
+      (let*
+         (($sAC
+            (deduction-strength
+               $sAB
+               $sB
+               $sBC
+               $sC))
 
-;; ------------------------------------------------------------
-;; Simple deduction
+          ($cAC
+            (deduction-confidence
+               $sAB
+               $cAB
+               $sBC
+               $cBC)))
+
+         (STV
+            $sAC
+            $cAC))))
+
+
+;; ============================================================
+;; SIMPLE DEDUCTION
 ;;
 ;; Simplified form:
 ;;
-;; strength   = sAB * sBC
-;; confidence = sAB * sBC * cAB * cBC
+;;   strength   = sAB * sBC
+;;   confidence = sAB * sBC * cAB * cBC
 ;;
-;; Useful for straightforward implication chains.
-;; ------------------------------------------------------------
+;; This version has no division and therefore has no
+;; denominator boundary problem.
+;; ============================================================
 
 (= (simple-deduction
       (STV $sAB $cAB)

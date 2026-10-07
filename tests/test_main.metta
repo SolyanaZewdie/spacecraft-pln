@@ -1,4 +1,4 @@
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 !(diagnose CommunicationLoss)
 

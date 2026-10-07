@@ -3,148 +3,172 @@
 ;; Spacecraft Anomaly Diagnosis
 ;; ============================================================
 ;;
-;; This file checks how the PLN engine behaves under unusual
-;; or difficult evidence conditions.
-;;
-;; These tests are important because a probabilistic reasoning
-;; system should not only work with ideal inputs.
-;;
-;; Cases tested:
-;;
-;;   1. Very weak evidence
-;;   2. High-confidence evidence
-;;   3. Strongly conflicting evidence
-;;   4. Equal-confidence conflicting evidence
-;;   5. Multi-step confidence degradation
-;;   6. Multiple possible causes
-;;   7. Observation with no known cause
+;; These tests verify that normal inference remains valid while
+;; mathematically undefined boundary cases are handled
+;; explicitly instead of producing NaN or inf.
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 
 ;; ============================================================
-;; CASE 1: VERY WEAK EVIDENCE
+;; 1. WEAK EVIDENCE
 ;; ============================================================
-;;
-;; Both premises have low strength and confidence.
-;;
-;; Expected:
-;; The resulting STV should also be weak.
-;; ------------------------------------------------------------
-
-!(deduction
-   (STV 0.20 0.20)
-   0.30
-   (STV 0.40 0.25)
-   0.35)
-
-
-;; ============================================================
-;; CASE 2: HIGH-CONFIDENCE EVIDENCE
-;; ============================================================
-;;
-;; Strong evidence passing through a strong implication.
-;;
-;; Expected:
-;; Relatively strong inferred evidence.
-;; ------------------------------------------------------------
-
-!(simple-deduction
-   (STV 0.98 0.99)
-   (STV 0.97 0.98))
-
-
-;; ============================================================
-;; CASE 3: STRONGLY CONFLICTING EVIDENCE
-;; ============================================================
-;;
-;; One source strongly supports a proposition while another
-;; source strongly rejects it.
-;;
-;; Strengths:
-;;
-;;     0.90
-;;     0.10
-;;
-;; The revision mechanism should combine them according to
-;; their confidence values.
-;; ------------------------------------------------------------
 
 !(revision
-   (STV 0.90 0.80)
-   (STV 0.10 0.80))
+   (STV 0.20 0.10)
+   (STV 0.80 0.20))
 
 
 ;; ============================================================
-;; CASE 4: CONFLICTING EVIDENCE WITH DIFFERENT CONFIDENCE
+;; 2. HIGH CONFIDENCE
 ;; ============================================================
-;;
-;; Source 1:
-;;     high strength but lower confidence
-;;
-;; Source 2:
-;;     lower strength but higher confidence
-;;
-;; Revision should give more weight to the evidence with
-;; greater confidence.
-;; ------------------------------------------------------------
 
 !(revision
-   (STV 0.90 0.40)
-   (STV 0.20 0.90))
+   (STV 0.90 0.95)
+   (STV 0.99 0.99))
 
 
 ;; ============================================================
-;; CASE 5: MULTI-STEP CONFIDENCE DEGRADATION
+;; 3. CONFLICTING EVIDENCE
 ;; ============================================================
-;;
-;; Three inference steps are applied sequentially.
-;;
-;; The purpose is to demonstrate that confidence can decrease
-;; as uncertainty propagates through a longer reasoning chain.
-;; ------------------------------------------------------------
 
-;; Step 1
+!(revision
+   (STV 0.10 0.50)
+   (STV 0.90 0.50))
+
+
+;; ============================================================
+;; 4. UNEQUAL-CONFIDENCE CONFLICT
+;; ============================================================
+
+!(revision
+   (STV 0.10 0.20)
+   (STV 0.90 0.80))
+
+
+;; ============================================================
+;; 5. MULTI-STEP CONFIDENCE DEGRADATION
+;; ============================================================
 
 !(simple-deduction
    (STV 0.90 0.90)
    (STV 0.90 0.90))
 
-
-;; Step 2
-
 !(simple-deduction
-   (STV 0.81 0.81)
-   (STV 0.90 0.90))
-
-
-;; Step 3
-
-!(simple-deduction
-   (STV 0.729 0.729)
+   (STV 0.81 0.729)
    (STV 0.90 0.90))
 
 
 ;; ============================================================
-;; CASE 6: MULTIPLE POSSIBLE CAUSES
+;; 6. MULTIPLE DIAGNOSTIC CAUSES
 ;; ============================================================
-;;
-;; CommunicationLoss deliberately has multiple possible
-;; explanations in our spacecraft knowledge base.
-;; ------------------------------------------------------------
 
-!(why CommunicationLoss)
+!(possible-causes CommunicationLoss)
 
 
 ;; ============================================================
-;; CASE 7: NO KNOWN CAUSE
+;; 7. UNKNOWN OBSERVATION
 ;; ============================================================
-;;
-;; This observation is not currently connected to a cause
-;; in the knowledge base.
-;;
-;; The result should be empty rather than inventing a cause.
-;; ------------------------------------------------------------
 
-!(why UnknownObservation)
+!(possible-causes UnknownObservation)
+
+
+;; ============================================================
+;; 8. CONFIDENCE = 1
+;;
+;; The weight conversion is undefined at c = 1.
+;; The implementation must return an explicit result rather
+;; than inf.
+;; ============================================================
+
+!(confidence-to-weight 1.0)
+
+
+;; ============================================================
+;; 9. REVISION WITH COMPLETE CONFIDENCE
+;;
+;; Completely trusted evidence should be preserved.
+;; ============================================================
+
+!(revision
+   (STV 0.70 1.0)
+   (STV 0.20 0.50))
+
+
+;; ============================================================
+;; 10. REVISION WITH NO EVIDENCE
+;;
+;; Both confidence values are zero, so revision is undefined.
+;; ============================================================
+
+!(revision
+   (STV 0.70 0.0)
+   (STV 0.95 0.0))
+
+
+;; ============================================================
+;; 11. DEDUCTION BOUNDARY
+;;
+;; sB = 1 makes 1-sB = 0.
+;; ============================================================
+
+!(deduction
+   (STV 0.90 0.80)
+   1.0
+   (STV 0.90 0.80)
+   0.90)
+
+
+;; ============================================================
+;; 12. INDUCTION BOUNDARY
+;;
+;; sA = 0 makes the equation undefined.
+;; ============================================================
+
+!(induction
+   (STV 0.90 0.80)
+   (STV 0.80 0.70)
+   0.70
+   0.0
+   0.80)
+
+
+;; ============================================================
+;; 13. INDUCTION BOUNDARY
+;;
+;; sC = 1 makes 1-sC = 0.
+;; ============================================================
+
+!(induction
+   (STV 0.90 0.80)
+   (STV 0.80 0.70)
+   1.0
+   0.80
+   0.80)
+
+
+;; ============================================================
+;; 14. ABDUCTION BOUNDARY
+;;
+;; sC = 0 makes the equation undefined.
+;; ============================================================
+
+!(abduction
+   (STV 0.90 0.80)
+   (STV 0.80 0.70)
+   0.60
+   0.0)
+
+
+;; ============================================================
+;; 15. ABDUCTION BOUNDARY
+;;
+;; sC = 1 makes 1-sC = 0.
+;; ============================================================
+
+!(abduction
+   (STV 0.90 0.80)
+   (STV 0.80 0.70)
+   0.60
+   1.0)

@@ -16,7 +16,7 @@
 ;; the project rather than manually calculated results.
 ;; ============================================================
 
-!(import! &self "../src/main.metta")
+!(import! &self "main")
 
 
 ;; ============================================================

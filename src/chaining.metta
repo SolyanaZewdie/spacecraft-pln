@@ -3,33 +3,19 @@
 ;; Spacecraft Anomaly Diagnosis
 ;; ============================================================
 ;;
-;; This file implements the chaining part of the PLN engine.
+;; Chaining repeatedly applies implications to move from
+;; known information toward new information.
 ;;
-;; Chaining means repeatedly using relationships in the
-;; knowledge base to move from known information to new
-;; information.
+;; Two directions are implemented:
 ;;
-;; We implement two directions:
+;; FORWARD:
+;;     evidence -> consequence -> further consequence
 ;;
-;; 1. FORWARD CHAINING
-;;    Evidence/facts -> consequences
+;; BACKWARD:
+;;     query -> possible causes
 ;;
-;;    Example:
-;;    BatteryFailure
-;;        -> PowerFluctuation
-;;        -> CommunicationLoss
-;;
-;; 2. BACKWARD CHAINING
-;;    Query/consequence -> possible causes
-;;
-;;    Example:
-;;    CommunicationLoss
-;;        <- PowerFailure
-;;        <- AntennaFailure
-;;        <- RadiationEvent
-;;
-;; The actual STV calculations are performed by the PLN
-;; inference functions in deduction.metta.
+;; STV calculations are performed by the PLN inference
+;; functions in deduction.metta.
 ;; ============================================================
 
 
@@ -38,24 +24,13 @@
 ;; ============================================================
 
 ;; ------------------------------------------------------------
-;; Find all direct consequences of a statement.
-;;
-;; Given:
-;;
-;;     Implication A B STV
-;;
-;; return the implication describing:
-;;
-;;     A -> B
+;; Find direct consequences of a statement.
 ;;
 ;; Example:
 ;;
-;;     (find-consequences PowerFailure)
-;;
-;; can find:
-;;
-;;     PowerFailure -> PowerFluctuation
-;;     PowerFailure -> CommunicationLoss
+;;     PowerFailure
+;;         -> PowerFluctuation
+;;         -> CommunicationLoss
 ;; ------------------------------------------------------------
 
 (= (find-consequences $A)
@@ -67,26 +42,8 @@
 ;; ------------------------------------------------------------
 ;; One-step forward inference.
 ;;
-;; Input:
-;;
-;;     Evidence A
-;;     A -> B
-;;
-;; Output:
-;;
-;;     Derived B
-;;
-;; The STV of the evidence and the STV of the implication
-;; are combined using simplified PLN deduction.
-;;
-;; Example:
-;;
-;;     Evidence PowerFailure <0.80,0.75>
-;;     PowerFailure -> CommunicationLoss <0.95,0.90>
-;;
-;; produces a Derived CommunicationLoss with a lower
-;; confidence because the evidence passes through an
-;; inference step.
+;; Evidence A + implication A -> B
+;; produces derived evidence about B.
 ;; ------------------------------------------------------------
 
 (= (forward-step
@@ -102,6 +59,55 @@
       (Derived $B $result)))
 
 
+;; ------------------------------------------------------------
+;; Two-step forward chaining.
+;;
+;; The important part is that the result of the first
+;; inference is stored in $first and then passed directly
+;; into the second inference.
+;;
+;; Therefore we do NOT manually enter the intermediate STV.
+;;
+;; Chain:
+;;
+;;     A -> B -> C
+;;
+;;     Evidence A
+;;          |
+;;          v
+;;       Derived B
+;;          |
+;;          v
+;;       Derived C
+;; ------------------------------------------------------------
+
+(= (forward-chain-2
+      (Evidence $A (STV $sA $cA))
+      (Implication $A $B (STV $sAB $cAB))
+      (Implication $B $C (STV $sBC $cBC)))
+
+   (let*
+      (($first
+         (simple-deduction
+            (STV $sA $cA)
+            (STV $sAB $cAB)))
+
+       ($second
+         (simple-deduction
+            $first
+            (STV $sBC $cBC)))
+
+       ($result
+         (DerivedChain
+            $A
+            $B
+            $C
+            $first
+            $second)))
+
+      $result))
+
+
 ;; ============================================================
 ;; BACKWARD REASONING
 ;; ============================================================
@@ -109,21 +115,9 @@
 ;; ------------------------------------------------------------
 ;; Find all possible causes of a statement.
 ;;
-;; Given a target B, search for:
+;; Given target B, search for:
 ;;
 ;;     A -> B
-;;
-;; and return the matching implications.
-;;
-;; Example:
-;;
-;;     (find-causes CommunicationLoss)
-;;
-;; returns:
-;;
-;;     PowerFailure -> CommunicationLoss
-;;     AntennaFailure -> CommunicationLoss
-;;     RadiationEvent -> CommunicationLoss
 ;; ------------------------------------------------------------
 
 (= (find-causes $B)
@@ -135,21 +129,11 @@
 ;; ------------------------------------------------------------
 ;; One-step backward reasoning.
 ;;
-;; Given a query B, return candidate causes A.
+;; Given query B, return candidate causes A.
 ;;
-;; Example:
-;;
-;;     (backward-step CommunicationLoss)
-;;
-;; returns:
-;;
-;;     CandidateCause PowerFailure CommunicationLoss ...
-;;     CandidateCause AntennaFailure CommunicationLoss ...
-;;     CandidateCause RadiationEvent CommunicationLoss ...
-;;
-;; This does NOT claim that any cause is definitely true.
-;; It only identifies causes supported by relationships
-;; already present in the knowledge base.
+;; This does not claim that a candidate cause is definitely
+;; true. It only identifies explanations supported by the
+;; knowledge base.
 ;; ------------------------------------------------------------
 
 (= (backward-step $B)
@@ -159,20 +143,7 @@
 
 
 ;; ------------------------------------------------------------
-;; Backward-chain
-;;
-;; This is a named representation of a backward path.
-;;
-;; Given:
-;;
-;;     A -> B
-;;
-;; return:
-;;
-;;     BackwardPath A B STV
-;;
-;; This allows us to distinguish a backward reasoning path
-;; from a normal implication in the knowledge base.
+;; Represent backward reasoning paths.
 ;; ------------------------------------------------------------
 
 (= (backward-chain $B)

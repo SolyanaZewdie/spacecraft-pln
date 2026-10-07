@@ -1,9 +1,6 @@
 ;; ============================================================
 ;; PLN INDUCTION
 ;; ============================================================
-
-;; ------------------------------------------------------------
-;; Induction strength
 ;;
 ;; Given:
 ;;   C -> A
@@ -13,7 +10,28 @@
 ;;   A -> B
 ;;
 ;; This is a generalization, not a certainty.
-;; ------------------------------------------------------------
+;;
+;; Boundary handling:
+;;
+;; The induction-strength equation contains:
+;;
+;;     sA
+;;     1 - sC
+;;
+;; as denominators.
+;;
+;; Therefore:
+;;
+;;   sA = 0
+;;   sC = 1
+;;
+;; make the equation undefined.
+;; ============================================================
+
+
+;; ============================================================
+;; INDUCTION STRENGTH
+;; ============================================================
 
 (= (induction-strength
       $sCA
@@ -22,23 +40,31 @@
       $sA
       $sB)
 
-   (+ (/ (* (* $sCA $sCB) $sC)
-          $sA)
+   (if
+      (== $sA 0.0)
 
-      (* (- 1.0
-            (/ (* $sCA $sC)
-               $sA))
+      (UndefinedInference InductionSAZero)
 
-         (/ (- $sB
-               (* $sC $sCB))
-            (- 1.0 $sC)))))
+      (if
+         (== $sC 1.0)
 
-;; ------------------------------------------------------------
-;; Induction evidence weight
-;;
-;; Stronger evidence about both premises gives
-;; greater evidence weight for the induced relation.
-;; ------------------------------------------------------------
+         (UndefinedInference InductionSCOne)
+
+         (+ (/ (* (* $sCA $sCB) $sC)
+                $sA)
+
+            (* (- 1.0
+                  (/ (* $sCA $sC)
+                     $sA))
+
+               (/ (- $sB
+                     (* $sC $sCB))
+                  (- 1.0 $sC)))))))
+
+
+;; ============================================================
+;; INDUCTION EVIDENCE WEIGHT
+;; ============================================================
 
 (= (induction-weight
       $sCB
@@ -47,9 +73,10 @@
 
    (* (* $sCB $cCB) $cCA))
 
-;; ------------------------------------------------------------
-;; Convert induction weight into confidence
-;; ------------------------------------------------------------
+
+;; ============================================================
+;; INDUCTION CONFIDENCE
+;; ============================================================
 
 (= (induction-confidence
       $sCB
@@ -65,9 +92,10 @@
 
       (/ $w (+ $w 1.0))))
 
-;; ------------------------------------------------------------
-;; Full PLN induction
-;; ------------------------------------------------------------
+
+;; ============================================================
+;; FULL PLN INDUCTION
+;; ============================================================
 
 (= (induction
       (STV $sCA $cCA)
@@ -76,21 +104,31 @@
       $sA
       $sB)
 
-   (let*
-      (($sAB
-         (induction-strength
-            $sCA
-            $sCB
-            $sC
-            $sA
-            $sB))
+   (if
+      (== $sA 0.0)
 
-       ($cAB
-         (induction-confidence
-            $sCB
-            $cCB
-            $cCA)))
+      (UndefinedInference InductionSAZero)
 
-      (STV
-         $sAB
-         $cAB)))
+      (if
+         (== $sC 1.0)
+
+         (UndefinedInference InductionSCOne)
+
+         (let*
+            (($sAB
+               (induction-strength
+                  $sCA
+                  $sCB
+                  $sC
+                  $sA
+                  $sB))
+
+             ($cAB
+               (induction-confidence
+                  $sCB
+                  $cCB
+                  $cCA)))
+
+            (STV
+               $sAB
+               $cAB)))))

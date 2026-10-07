@@ -1,4 +1,4 @@
-!(import! &self "../src/abduction.metta")
+!(import! &self "abduction")
 
 !(abduction
    (STV 0.99 0.95)

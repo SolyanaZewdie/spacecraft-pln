@@ -13,7 +13,7 @@ A mini PLN inference engine in MeTTa (OpenCog Hyperon) that diagnoses spacecraft
   The installation provides the metta-py command used to run the project.
 - Technical Report Link: https://docs.google.com/document/d/1AQxEX-fUR8kmjjcLLzVoEB3KXXwjzq3L32Kk1McpnYw/edit?usp=sharing
 
-2. How to Run
+## 2. How to Run
 
 Clone the repository and open a terminal in the project root.
 

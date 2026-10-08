@@ -6,6 +6,7 @@ A mini PLN inference engine in MeTTa (OpenCog Hyperon) that diagnoses spacecraft
 
 - Python 3.9+
 - OpenCog Hyperon: `pip install hyperon`
+- Technical Report Link: https://docs.google.com/document/d/1AQxEX-fUR8kmjjcLLzVoEB3KXXwjzq3L32Kk1McpnYw/edit?usp=sharing
 
 ## 2. How to Run
 

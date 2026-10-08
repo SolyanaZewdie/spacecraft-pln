@@ -6,21 +6,27 @@ A mini PLN inference engine in MeTTa (OpenCog Hyperon) that diagnoses spacecraft
 
 - Python 3.9+
 - OpenCog Hyperon: `pip install hyperon`
+  Install Hyperon:
+
+  python -m pip install hyperon
+
+  The installation provides the metta-py command used to run the project.
 - Technical Report Link: https://docs.google.com/document/d/1AQxEX-fUR8kmjjcLLzVoEB3KXXwjzq3L32Kk1McpnYw/edit?usp=sharing
 
-## 2. How to Run
+2. How to Run
 
-From the project root:
+Clone the repository and open a terminal in the project root.
 
-```bash
-# Full demonstration (all queries below)
+Full demonstration
 metta-py examples/spacecraft_diagnosis_demo.metta
-
-# Tests
+Tests
 metta-py tests/test_integration.metta
 metta-py tests/test_edge_cases.metta
 metta-py tests/test_pln.metta
-```
+
+The project uses MeTTa modules under src/. The test and demonstration files import these modules through the project's include path.
+
+If metta-py is not recognized after installation, make sure the Python Scripts directory is available on your system PATH, or run the command through the Python environment in which Hyperon was installed.
 
 Every file in `tests/` and `examples/` runs the same way. Each `!(...)` line in a file is one query, and its result is printed in order.
 

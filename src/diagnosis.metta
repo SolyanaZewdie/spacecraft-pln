@@ -6,6 +6,7 @@
 ;; ============================================================
 ;; SPACECRAFT DIAGNOSIS
 ;; ============================================================
+
 (= (possible-causes $observation)
    (match &self
       (Implication $cause $observation $stv)
@@ -18,16 +19,33 @@
 
 ;; ------------------------------------------------------------
 ;; Diagnostic candidate = cause + prior + causal strength
+;; + diagnostic score
 ;; ------------------------------------------------------------
 
 (= (diagnostic-candidate $observation)
    (match &self
-      (Implication $cause $observation $implication)
-      (DiagnosticCandidate
+      (Implication
          $cause
          $observation
-         (get-prior $cause)
-         $implication)))
+         $implication)
+      (match &self
+         (Prior
+            $cause
+            (STV $sCause $cCause))
+         (match &self
+            (Evidence
+               $observation
+               (STV $sEvidence $cEvidence))
+            (DiagnosticCandidate
+               $cause
+               $observation
+               (Prior
+                  $cause
+                  (STV $sCause $cCause))
+               $implication
+               (STV
+                  (* $sEvidence $sCause)
+                  (* (* $cEvidence $cCause) $sCause)))))))
 
 ;; ------------------------------------------------------------
 ;; Combine observed evidence with a causal implication

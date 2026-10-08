@@ -455,20 +455,7 @@ Current limitations include:
 
 These limitations leave room for future work.
 
-## 12. Future Work
-
-Possible extensions include:
-
-* Larger spacecraft knowledge bases.
-* Automated knowledge extraction from telemetry.
-* More sophisticated sensor reliability models.
-* Full multi-hop backward reasoning.
-* Attention/resource management using ECAN.
-* More advanced PLN inference rules.
-* Comparison with probabilistic graphical models.
-* Evaluation using real or simulated spacecraft anomaly datasets.
-
-## 13. Main Demonstration
+## 12. Main Demonstration
 
 The complete spacecraft scenario can be run from:
 
@@ -488,7 +475,7 @@ and the edge-case tests from:
 tests/test_edge_cases.metta
 ```
 
-## 14. Conclusion
+## 13. Conclusion
 
 This project demonstrates how Probabilistic Logic Networks can combine symbolic relationships with uncertainty for spacecraft anomaly diagnosis.
 
